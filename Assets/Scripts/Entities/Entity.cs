@@ -1,0 +1,297 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class Entity : MonoBehaviour
+{
+    protected Rigidbody2D rb;
+    protected SpriteRenderer spriteRenderer;
+    Animator animator;
+    protected float checkTimer;
+    protected float checkSpeed;
+
+    // Entity Manage
+    [SerializeField] protected float distance;
+    [SerializeField] protected Entity target;
+    [SerializeField] protected bool canMove;
+    [SerializeField] protected bool frozen;
+    [SerializeField] protected float frozenTimer;
+    [SerializeField] protected float attackTimer;
+    protected bool isAttacking;
+    [SerializeField] protected bool currentlyMatched;
+    [SerializeField] protected Vector3 direction;
+
+    // Animations
+    protected Coroutine freezeCoroutine = null;
+    protected Color originalColor;
+
+    // Stats
+    [SerializeField] protected float hp;
+    protected float moveSpeed;
+    protected float attackDamage;
+    protected float attackSpeed;
+    protected float attackRange;
+    protected String attackType;
+    protected float score;
+    
+
+    protected virtual void Start()
+    {
+        EntityManager.Register(this);
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        rb = gameObject.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+        }
+        checkTimer = 0f;
+        checkSpeed = 0.1f;
+
+        canMove = true;
+        currentlyMatched = false;
+        frozen = false;
+        isAttacking = false;
+        attackTimer = 0f;  
+    }
+
+    protected virtual void Update()
+    {
+        if (hp <= 0)
+        {
+            animateAndDestroy();
+        }
+
+        checkTimer += Time.deltaTime;
+        if (checkTimer >= checkSpeed)
+        {
+            updateEnemy();
+            checkTimer = 0f;
+        }
+
+        if (!frozen && !isAttacking)
+        {
+            moveEntity();
+        } 
+        else if (isAttacking)
+        {
+            attackTimer += Time.deltaTime;
+            if (attackTimer >= attackSpeed)
+            {
+                attack();
+                attackTimer = 0f;
+            }
+            if (target == null)
+            {
+                currentlyMatched = false;
+                isAttacking = false;
+            }
+        }
+    }
+
+    protected virtual void moveEntity()
+    {
+        if (target != null)
+        {
+            if (target.transform.position.x <= transform.position.x)
+            {
+                direction = Vector3.left;
+            } 
+            else
+            {
+                direction = Vector3.right;
+            }
+            
+        }
+        transform.position += direction * moveSpeed * Time.deltaTime;
+    }
+
+    protected virtual void matched(Entity teammate, Entity opponent)
+    {
+        teammate.setCurrentlyMatched(true);
+        opponent.setCurrentlyMatched(true);
+        
+        teammate.target = opponent;
+        opponent.target = teammate;
+    }
+
+    protected virtual void setCurrentlyMatched(bool val)
+    {
+        currentlyMatched = val;
+    }
+
+    public virtual bool getCurrentlyMatched()
+    {
+        return currentlyMatched;
+    }
+
+    public virtual Entity getTarget()
+    {
+        return target;
+    }
+
+    public virtual void setTarget(Entity target)
+    {
+        this.target = target;
+    }
+
+    protected virtual void updateEnemy()
+    {
+        if (!currentlyMatched)
+        {
+            target = EntityManager.getTarget(this);
+            if (target != null)
+            {
+                distance = Vector3.Distance(transform.position, target.transform.position);
+                if (distance <= 3f)
+                {
+                    matched(this, target);
+                }
+            } 
+            else
+            {
+                canMove = true;
+            }
+        } else
+        {
+            distance = Vector3.Distance(transform.position, target.transform.position);
+            if (target.getTarget() != null && !target.getTarget().Equals(this))
+            {
+                setCurrentlyMatched(false);
+            }
+            else if (distance <= attackRange)
+            {
+                isAttacking = true;
+            }
+            else
+            {
+                isAttacking = false;
+                canMove = !frozen;
+            } 
+        }
+        
+        
+    }
+    protected virtual void attack()
+    {
+        if (this.attackType.Equals("Melee"))
+        {
+            if (target != null)
+            {
+                target.getDamage(attackDamage);
+            }
+            if (target == null)
+            {
+                canMove = true;
+            }
+        } else if (this.attackType.Equals("Ranged"))
+        {
+            // 원거리 entity 발사
+        } else
+        {
+            Debug.Log("Wrong Attack Type");
+        }
+    }
+
+    public virtual void getDamage(float dmg)
+    {
+        hp -= dmg;
+    }
+
+    protected virtual void animateAndDestroy()
+    {
+        if (target != null) 
+        {
+            target.setTarget(null);
+            target.setCurrentlyMatched(false);
+            EntityManager.Register(target);
+        }
+        EntityManager.Unregister(this);
+        EntityManager.addDeadListEnemy(this);
+        Destroy(gameObject);
+    }
+
+    public virtual void freeze(float num)
+    {
+        if (originalColor == default(Color))
+            originalColor = spriteRenderer.color;
+
+        if (freezeCoroutine != null)
+        {
+            StopCoroutine(freezeCoroutine);
+            UnfreezeState();
+        }
+
+        freezeCoroutine = StartCoroutine(freezeHelp(num));
+    }
+
+    private IEnumerator freezeHelp(float num)
+    {
+        ApplyFreezeState();
+
+        yield return new WaitForSeconds(num);
+
+        UnfreezeState();
+
+        freezeCoroutine = null;
+    }
+
+    private void ApplyFreezeState()
+    {
+        frozen = true;
+
+        if (animator != null)
+            animator.speed = 0f;
+
+        spriteRenderer.color = new Color(0f, 0.2f, 0.7f, 1f);
+    }
+
+    private void UnfreezeState()
+    {
+        frozen = false;
+
+        if (animator != null)
+            animator.speed = 1f;
+
+        spriteRenderer.color = originalColor;
+    }
+
+    public virtual void knockback(float knockbackDist, float freezeTime)
+    {
+        StopCoroutine("KnockbackCoroutine");  // avoid duplicate knockbacks
+        StartCoroutine(KnockbackCoroutine(knockbackDist, freezeTime));
+    }
+
+    private IEnumerator KnockbackCoroutine(float knockbackDist, float freezeTime)
+    {
+        bool knockLeft = (this is Team);
+        float knocked = 0f;
+        float knockSpeed = 5f;
+
+        canMove = false;
+
+        while (knocked < knockbackDist)
+        {
+            knockSpeed += 0.3f;
+            float move = knockSpeed * Time.deltaTime;
+            if (knockLeft)
+            {
+                transform.position += Vector3.left * move;
+            } 
+            else
+            {
+                transform.position += Vector3.right * move;
+            }
+            
+            knocked += move;
+
+            yield return null; // wait for next frame
+        }
+
+        canMove = true;
+        freeze(freezeTime);
+    }
+}
