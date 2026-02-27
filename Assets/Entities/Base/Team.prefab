@@ -171,8 +171,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 612edb0b0e34c4653a451069a72d8628, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  proj: {fileID: -2360975348607496832, guid: edb2121cbdd16455f8d18e8504e75cfa, type: 3}
+  distance: 0
+  target: {fileID: 0}
   canMove: 0
   frozen: 0
   frozenTimer: 0
   attackTimer: 0
+  currentlyMatched: 0
+  direction: {x: 0, y: 0, z: 0}
   hp: 0

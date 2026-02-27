@@ -81,6 +81,6 @@ public class SpawnEnemy : MonoBehaviour
     {   
         float y_random_position = -0.7f * (Random.value * 1 - 0.5f);
         Vector3 spawnPosition = new Vector3(transform.position.x, y_random_position, transform.position.z);
-        Instantiate(enemy, transform.position, Quaternion.identity).name += "_"+(++spawnCount);
+        Instantiate(enemy, spawnPosition, Quaternion.identity).name += "_"+(++spawnCount);
     }
 }

@@ -39,7 +39,7 @@ public class SpawnTeam : MonoBehaviour
     {
         float y_random_position = -0.7f * (Random.value * 1 - 0.5f);
         Vector3 spawnPosition = new Vector3(transform.position.x, y_random_position, transform.position.z);
-        Instantiate(team, this.transform.position, Quaternion.identity).name += "_"+(++spawnCount);
+        Instantiate(team, spawnPosition, Quaternion.identity).name += "_"+(++spawnCount);
     }
 
     public float getEnergy()

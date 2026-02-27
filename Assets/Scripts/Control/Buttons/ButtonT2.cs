@@ -3,14 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ButtonT1 : TeamButton
+public class ButtonT2 : TeamButton
 {
-    public Team1 type1;
+    public Team2 type2;
     protected override void Start()
     {
         base.Start();
-        k = KeyCode.Alpha1;
-        energyRequired = 20f;
+        k = KeyCode.Alpha2;
+        energyRequired = 30f;
     }
 
     protected override void callSpawn()
@@ -19,7 +19,7 @@ public class ButtonT1 : TeamButton
 
         if (spawner != null)
         {
-            spawner.spawn(type1);
+            spawner.spawn(type2);
             //changeColor();
             spawner.reduceEnergy(energyRequired);
         }

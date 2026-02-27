@@ -10,6 +10,7 @@ public class Entity : MonoBehaviour
     protected Rigidbody2D rb;
     protected SpriteRenderer spriteRenderer;
     Animator animator;
+    [SerializeField] protected Projectile proj;
     protected float checkTimer;
     protected float checkSpeed;
 
@@ -55,7 +56,7 @@ public class Entity : MonoBehaviour
         currentlyMatched = false;
         frozen = false;
         isAttacking = false;
-        attackTimer = 0f;  
+        attackTimer = attackSpeed - 0.05f;  
     }
 
     protected virtual void Update()
@@ -92,6 +93,42 @@ public class Entity : MonoBehaviour
         }
     }
 
+    protected virtual void updateEnemy()
+    {
+        if (!currentlyMatched)
+        {
+            target = EntityManager.getTarget(this);
+            if (target != null)
+            {
+                distance = Vector3.Distance(transform.position, target.transform.position);
+                if (distance <= attackRange * 1.75f)
+                {
+                    matched(this, target);
+                }
+            } 
+            else
+            {
+                canMove = true;
+            }
+        } else
+        {
+            distance = Vector3.Distance(transform.position, target.transform.position);
+            if (target.getTarget() != null && !target.getTarget().Equals(this))
+            {
+                setCurrentlyMatched(false);
+            }
+            else if (distance <= attackRange)
+            {
+                isAttacking = true;
+            }
+            else
+            {
+                isAttacking = false;
+                canMove = !frozen;
+            } 
+        }
+    }
+
     protected virtual void moveEntity()
     {
         if (target != null)
@@ -105,6 +142,15 @@ public class Entity : MonoBehaviour
                 direction = Vector3.right;
             }
             
+        } else
+        {
+            if (this is Enemy)
+            {
+                direction = Vector3.left;
+            } else if (this is Team)
+            {
+                direction = Vector3.right;
+            }
         }
         transform.position += direction * moveSpeed * Time.deltaTime;
     }
@@ -138,43 +184,6 @@ public class Entity : MonoBehaviour
         this.target = target;
     }
 
-    protected virtual void updateEnemy()
-    {
-        if (!currentlyMatched)
-        {
-            target = EntityManager.getTarget(this);
-            if (target != null)
-            {
-                distance = Vector3.Distance(transform.position, target.transform.position);
-                if (distance <= 3f)
-                {
-                    matched(this, target);
-                }
-            } 
-            else
-            {
-                canMove = true;
-            }
-        } else
-        {
-            distance = Vector3.Distance(transform.position, target.transform.position);
-            if (target.getTarget() != null && !target.getTarget().Equals(this))
-            {
-                setCurrentlyMatched(false);
-            }
-            else if (distance <= attackRange)
-            {
-                isAttacking = true;
-            }
-            else
-            {
-                isAttacking = false;
-                canMove = !frozen;
-            } 
-        }
-        
-        
-    }
     protected virtual void attack()
     {
         if (this.attackType.Equals("Melee"))
@@ -189,7 +198,8 @@ public class Entity : MonoBehaviour
             }
         } else if (this.attackType.Equals("Ranged"))
         {
-            // 원거리 entity 발사
+            Projectile projShot = Instantiate(proj, transform.position, Quaternion.identity);
+            projShot.Init(attackDamage, moveSpeed * 1.2f, target, direction);
         } else
         {
             Debug.Log("Wrong Attack Type");

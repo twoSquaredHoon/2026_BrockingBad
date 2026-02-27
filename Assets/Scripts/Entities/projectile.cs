@@ -2,43 +2,62 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class projectile : MonoBehaviour
+public class Projectile : MonoBehaviour
 {
+    protected Rigidbody2D rb;
     protected float damage;
     protected float moveSpeed;
     protected float terminatePosition;
     protected float projectileRange;
-    protected Entity target;
+    [SerializeField] protected Entity target;
+    protected Vector3 direction;
+    protected float distance;
+    protected bool withinDistance;
+    protected bool innerWithinDistance;
 
-    public void Init(int dmg, float speed, Entity target) 
+    public virtual void Init(float dmg, float speed, Entity target, Vector3 direction) 
     {
+        rb = gameObject.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+        }
+
         this.damage = dmg;
         this.moveSpeed = speed;
         this.projectileRange = 4f;
-        this.terminatePosition = transform.position.x + projectileRange;
+        this.direction = direction;
+        if (this.direction.Equals(Vector3.left))
+        {
+            this.terminatePosition = transform.position.x - projectileRange;
+        } else
+        {
+            this.terminatePosition = transform.position.x + projectileRange;
+        }
         this.target = target;
     }
-    void Update()
+    protected virtual void Update()
     {
-        if (transform.position.x > terminatePosition)
+        withinDistance = transform.position.x < terminatePosition;
+        if ((direction.Equals(Vector3.left) && withinDistance) || (direction.Equals(Vector3.right) && !withinDistance))
         {
             Destroy(gameObject);
         }
         else
         {
-            transform.position += Vector3.right * moveSpeed * Time.deltaTime;
-        }
-    }
-
-    protected virtual void OnTriggerEnter2D(Collider2D other)
-    {
-        bool isOpponent = other.CompareTag("Enemy");
-        if (isOpponent)
-        {
-            Enemy enemy = other.GetComponent<Enemy>();
-            if (enemy != null)
+            transform.position += direction * (moveSpeed * 3f) * Time.deltaTime;
+            if (target != null)
             {
-                enemy.getDamage(damage);
+                innerWithinDistance = transform.position.x < target.transform.position.x;
+                if ((direction.Equals(Vector3.left) && innerWithinDistance) || (direction.Equals(Vector3.right) && !innerWithinDistance))
+                {
+                    target.getDamage(damage);
+                    Destroy(gameObject);
+                }
+            } 
+            else
+            {
                 Destroy(gameObject);
             }
         }
