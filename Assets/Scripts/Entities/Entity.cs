@@ -56,7 +56,6 @@ public class Entity : MonoBehaviour
         currentlyMatched = false;
         frozen = false;
         isAttacking = false;
-        attackTimer = attackSpeed - 0.05f;
     }
 
     protected virtual void Update()
@@ -192,19 +191,15 @@ public class Entity : MonoBehaviour
     }
 
     protected virtual void attack()
+{
+    if (this.attackType.Equals("Melee"))
     {
-        if (this.attackType.Equals("Melee"))
+        if (target == null)
         {
-            if (target != null)
-            {
-                target.getDamage(attackDamage);
-            }
-            if (target == null)
-            {
-                canMove = true;
-            }
+            canMove = true;
         }
-        else if (this.attackType.Equals("Ranged"))
+    }
+    else if (this.attackType.Equals("Ranged"))
         {
             Projectile projShot = Instantiate(proj, transform.position, Quaternion.identity);
             projShot.Init(attackDamage, moveSpeed * 1.2f, target, direction);
