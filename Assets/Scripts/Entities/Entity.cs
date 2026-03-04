@@ -9,7 +9,7 @@ public class Entity : MonoBehaviour
 {
     protected Rigidbody2D rb;
     protected SpriteRenderer spriteRenderer;
-    Animator animator;
+    protected Animator animator;
     [SerializeField] protected Projectile proj;
     protected float checkTimer;
     protected float checkSpeed;
@@ -37,12 +37,12 @@ public class Entity : MonoBehaviour
     protected float attackRange;
     protected String attackType;
     protected float score;
-    
 
     protected virtual void Start()
     {
         EntityManager.Register(this);
         spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
         rb = gameObject.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
@@ -56,7 +56,7 @@ public class Entity : MonoBehaviour
         currentlyMatched = false;
         frozen = false;
         isAttacking = false;
-        attackTimer = attackSpeed - 0.05f;  
+        attackTimer = attackSpeed - 0.05f;
     }
 
     protected virtual void Update()
@@ -76,12 +76,13 @@ public class Entity : MonoBehaviour
         if (!frozen && !isAttacking)
         {
             moveEntity();
-        } 
+        }
         else if (isAttacking)
         {
             attackTimer += Time.deltaTime;
             if (attackTimer >= attackSpeed)
             {
+                PlayAttackAnimation();
                 attack();
                 attackTimer = 0f;
             }
@@ -105,12 +106,13 @@ public class Entity : MonoBehaviour
                 {
                     matched(this, target);
                 }
-            } 
+            }
             else
             {
                 canMove = true;
             }
-        } else
+        }
+        else
         {
             distance = Vector3.Distance(transform.position, target.transform.position);
             if (target.getTarget() != null && !target.getTarget().Equals(this))
@@ -125,7 +127,7 @@ public class Entity : MonoBehaviour
             {
                 isAttacking = false;
                 canMove = !frozen;
-            } 
+            }
         }
     }
 
@@ -136,30 +138,35 @@ public class Entity : MonoBehaviour
             if (target.transform.position.x <= transform.position.x)
             {
                 direction = Vector3.left;
-            } 
+            }
             else
             {
                 direction = Vector3.right;
             }
-            
-        } else
+        }
+        else
         {
             if (this is Enemy)
             {
                 direction = Vector3.left;
-            } else if (this is Team)
+            }
+            else if (this is Team)
             {
                 direction = Vector3.right;
             }
         }
         transform.position += direction * moveSpeed * Time.deltaTime;
+        PlayMoveAnimation();
     }
+
+    protected virtual void PlayAttackAnimation() { }
+    protected virtual void PlayMoveAnimation() { }
 
     protected virtual void matched(Entity teammate, Entity opponent)
     {
         teammate.setCurrentlyMatched(true);
         opponent.setCurrentlyMatched(true);
-        
+
         teammate.target = opponent;
         opponent.target = teammate;
     }
@@ -196,11 +203,13 @@ public class Entity : MonoBehaviour
             {
                 canMove = true;
             }
-        } else if (this.attackType.Equals("Ranged"))
+        }
+        else if (this.attackType.Equals("Ranged"))
         {
             Projectile projShot = Instantiate(proj, transform.position, Quaternion.identity);
             projShot.Init(attackDamage, moveSpeed * 1.2f, target, direction);
-        } else
+        }
+        else
         {
             Debug.Log("Wrong Attack Type");
         }
@@ -213,7 +222,7 @@ public class Entity : MonoBehaviour
 
     protected virtual void animateAndDestroy()
     {
-        if (target != null) 
+        if (target != null)
         {
             target.setTarget(null);
             target.setCurrentlyMatched(false);
@@ -271,7 +280,7 @@ public class Entity : MonoBehaviour
 
     public virtual void knockback(float knockbackDist, float freezeTime)
     {
-        StopCoroutine("KnockbackCoroutine");  // avoid duplicate knockbacks
+        StopCoroutine("KnockbackCoroutine");
         StartCoroutine(KnockbackCoroutine(knockbackDist, freezeTime));
     }
 
@@ -290,15 +299,15 @@ public class Entity : MonoBehaviour
             if (knockLeft)
             {
                 transform.position += Vector3.left * move;
-            } 
+            }
             else
             {
                 transform.position += Vector3.right * move;
             }
-            
+
             knocked += move;
 
-            yield return null; // wait for next frame
+            yield return null;
         }
 
         canMove = true;
