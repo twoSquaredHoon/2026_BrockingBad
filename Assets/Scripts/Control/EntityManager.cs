@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Data;
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -127,7 +130,7 @@ public class EntityManager : MonoBehaviour
         {
             if (t == null || t.getCurrentlyMatched()) continue;
 
-            float distance = Vector3.Distance(currentPos, t.transform.position);
+            float distance = Math.Abs(currentPos.x - t.transform.position.x);
             if (distance < minDistance)
             {
                 minDistance = distance;
@@ -150,7 +153,7 @@ public class EntityManager : MonoBehaviour
         {
             if (e == null || e.getCurrentlyMatched()) continue;
 
-            float distance = Vector3.Distance(currentPos, e.transform.position);
+            float distance = Math.Abs(currentPos.x - e.transform.position.x);
             if (distance < minDistance)
             {
                 minDistance = distance;

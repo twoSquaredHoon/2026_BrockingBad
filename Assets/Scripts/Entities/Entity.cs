@@ -100,7 +100,7 @@ public class Entity : MonoBehaviour
             target = EntityManager.getTarget(this);
             if (target != null)
             {
-                distance = Vector3.Distance(transform.position, target.transform.position);
+                distance = Math.Abs(transform.position.x - target.transform.position.x);
                 if (distance <= attackRange * 1.75f)
                 {
                     matched(this, target);
@@ -112,7 +112,7 @@ public class Entity : MonoBehaviour
             }
         } else
         {
-            distance = Vector3.Distance(transform.position, target.transform.position);
+            distance = Math.Abs(transform.position.x - target.transform.position.x);
             if (target.getTarget() != null && !target.getTarget().Equals(this))
             {
                 setCurrentlyMatched(false);
