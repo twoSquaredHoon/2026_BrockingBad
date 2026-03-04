@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "BrockLee.slnx"
+    "dotnet.defaultSolution": "Test.slnx"
 }

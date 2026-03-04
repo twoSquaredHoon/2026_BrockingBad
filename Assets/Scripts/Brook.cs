@@ -8,23 +8,50 @@ public class Brook : MonoBehaviour
     public Animator anim;
     public int facingDirection = 1;
 
-    // Update is called once per frame
+    public float hp = 400f;
+
+    void Start()
+    {
+        EntityManager.Register(this);
+    }
+
     void Update()
     {
+        if (hp <= 0)
+        {
+            animateAndDestroy();
+        }
         float horizontal = Input.GetAxis("Horizontal");
-        // float vertical = Input.GetAxis("Vertical");
 
         if (horizontal > 0 && transform.localScale.x < 0 || horizontal < 0 && transform.localScale.x > 0) {
             Flip();
         }
 
         anim.SetFloat("horizontal", Mathf.Abs(horizontal));
-        // anim.SetFloat("vertical", Mathf.Abs(vertical));
 
-        rb.velocity = new Vector2(horizontal, 0) * speed;
+        rb.linearVelocity = new Vector2(horizontal, 0) * speed;
     }
     void Flip() {
         facingDirection *= -1;
         transform.localScale = new Vector3 (transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+    }
+
+    public void TriggerSpawnAnimation()
+    {
+        if (anim != null)
+        {
+            // "doSpawn"이라는 이름의 Trigger를 발동시킵니다.
+            anim.SetTrigger("doSpawn");
+        }
+    }
+
+    public void getDamage(float dmg)
+    {
+        this.hp -= dmg;
+    }
+
+    protected virtual void animateAndDestroy()
+    {
+        Destroy(gameObject);
     }
 }

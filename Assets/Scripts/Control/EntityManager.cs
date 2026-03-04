@@ -7,21 +7,22 @@ using Unity.VisualScripting;
 
 public class EntityManager : MonoBehaviour
 {
-    public static List<Enemy> enemies = new List<Enemy>();
-    public static List<Team> teams = new List<Team>();
-    public static List<string> deadEnemyList = new List<string>();
-    public static List<string> deadTeamList = new List<string>();
+    private static List<Enemy> enemies = new List<Enemy>();
+    private static List<Team> teams = new List<Team>();
+    private static List<string> deadEnemyList = new List<string>();
+    private static List<string> deadTeamList = new List<string>();
+    private static Brook brook = null;
 
 
     [SerializeField] private List<Enemy> debugEnemies;
-    [SerializeField] private List<Team> debugTeams;
+    [SerializeField] private List<MonoBehaviour> debugTeams;
     [SerializeField] private List<string> debugDeadEnemies;
     [SerializeField] private List<string> debugDeadTeams;
 
     private void Update()
     {
         debugEnemies = new List<Enemy>(enemies);
-        debugTeams = new List<Team>(teams);
+        debugTeams = teams.ConvertAll(t => t as MonoBehaviour);
         debugDeadEnemies = new List<string>(deadEnemyList);
         debugDeadTeams = new List<string>(deadTeamList);
 
@@ -47,6 +48,14 @@ public class EntityManager : MonoBehaviour
     public static void Register(Team t)
     {
         teams.Add(t);
+    }
+    public static void Register(Brook b)
+    {
+        brook = b;
+    }
+    public static Brook getBrook()
+    {
+        return brook;
     }
 
     public static void Unregister(Entity e)
@@ -118,7 +127,7 @@ public class EntityManager : MonoBehaviour
         return null;
     }
 
-    public static Entity getTarget(Enemy e)
+    public static Team getTarget(Enemy e)
     {
         if (teams.Count == 0 || e == null) return null;
 
@@ -137,8 +146,7 @@ public class EntityManager : MonoBehaviour
                 closest = t;
             }
         }
-
-        return closest as Entity; 
+        return closest;
     }
 
     public static Entity getTarget(Team t)

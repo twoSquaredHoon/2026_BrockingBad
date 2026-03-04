@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 88650961829931661}
+  - component: {fileID: 3052015802606983545}
   - component: {fileID: -3841573897487754286}
   - component: {fileID: 7735027574555074462}
   - component: {fileID: 4558289296727536979}
-  - component: {fileID: 3052015802606983545}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -35,6 +35,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3052015802606983545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 185302387760705149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 698693d41cdae439facb284d7df77408, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  proj: {fileID: -2360975348607496832, guid: edb2121cbdd16455f8d18e8504e75cfa, type: 3}
+  brook: {fileID: 7234047004963579255, guid: a21f7f19bc5c44d3da0db22f574d9245, type: 3}
+  distance: 0
+  target: {fileID: 0}
+  canMove: 0
+  frozen: 0
+  frozenTimer: 0
+  attackTimer: 0
+  currentlyMatched: 0
+  direction: {x: 0, y: 0, z: 0}
+  hp: 0
 --- !u!212 &-3841573897487754286
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -163,25 +186,3 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &3052015802606983545
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 185302387760705149}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 698693d41cdae439facb284d7df77408, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  proj: {fileID: -2360975348607496832, guid: edb2121cbdd16455f8d18e8504e75cfa, type: 3}
-  distance: 0
-  target: {fileID: 0}
-  canMove: 0
-  frozen: 0
-  frozenTimer: 0
-  attackTimer: 0
-  currentlyMatched: 0
-  direction: {x: 0, y: 0, z: 0}
-  hp: 0

@@ -10,6 +10,7 @@ public class Projectile : MonoBehaviour
     protected float terminatePosition;
     protected float projectileRange;
     [SerializeField] protected Entity target;
+    [SerializeField] protected Brook targetBrook;
     protected Vector3 direction;
     protected float distance;
     protected bool withinDistance;
@@ -36,6 +37,29 @@ public class Projectile : MonoBehaviour
             this.terminatePosition = transform.position.x + projectileRange;
         }
         this.target = target;
+    }
+
+    public virtual void Init(float dmg, float speed, Brook brook, Vector3 direction) 
+    {
+        rb = gameObject.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+        }
+
+        this.damage = dmg;
+        this.moveSpeed = speed;
+        this.projectileRange = 4f;
+        this.direction = direction;
+        if (this.direction.Equals(Vector3.left))
+        {
+            this.terminatePosition = transform.position.x - projectileRange;
+        } else
+        {
+            this.terminatePosition = transform.position.x + projectileRange;
+        }
+        this.targetBrook = brook;
     }
     protected virtual void Update()
     {

@@ -1361,10 +1361,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 940080279}
+  - component: {fileID: 940080284}
   - component: {fileID: 940080278}
   - component: {fileID: 940080280}
   - component: {fileID: 940080281}
-  - component: {fileID: 940080282}
   - component: {fileID: 940080283}
   m_Layer: 0
   m_Name: Brock
@@ -1507,22 +1507,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &940080282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 940080277}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84eefe08711344c67a8d018acc048be6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 5
-  rb: {fileID: 940080281}
-  anim: {fileID: 940080283}
-  facingDirection: -1
 --- !u!95 &940080283
 Animator:
   serializedVersion: 7
@@ -1545,6 +1529,23 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &940080284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 940080277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7eb234e8529834cdba9b0d6a4eecd82c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
+  rb: {fileID: 940080281}
+  anim: {fileID: 940080283}
+  facingDirection: 1
+  hp: 400
 --- !u!1 &961459080
 GameObject:
   m_ObjectHideFlags: 0
@@ -5490,7 +5491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   energy: 0
-  brook: {fileID: 940080282}
+  brook: {fileID: 940080284}
 --- !u!1 &2116724944
 GameObject:
   m_ObjectHideFlags: 0

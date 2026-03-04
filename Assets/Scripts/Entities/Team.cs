@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Team : Entity
+public class Team : Entity, ITargetable
 {
     protected override void Start()
     {

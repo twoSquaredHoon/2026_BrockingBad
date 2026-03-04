@@ -13,8 +13,9 @@ public class Entity : MonoBehaviour
     [SerializeField] protected Projectile proj;
     protected float checkTimer;
     protected float checkSpeed;
-
+    [SerializeField] protected bool bossTargetted = false;
     // Entity Manage
+    [SerializeField] public Brook brook;
     [SerializeField] protected float distance;
     [SerializeField] protected Entity target;
     [SerializeField] protected bool canMove;
@@ -37,11 +38,12 @@ public class Entity : MonoBehaviour
     protected float attackRange;
     protected String attackType;
     protected float score;
-    
 
+    [Obsolete]
     protected virtual void Start()
     {
         EntityManager.Register(this);
+        brook = EntityManager.getBrook();
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = gameObject.GetComponent<Rigidbody2D>();
         if (rb != null)
@@ -61,6 +63,11 @@ public class Entity : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (brook == null || brook is not Brook)
+        {
+            brook = EntityManager.getBrook();
+        }
+
         if (hp <= 0)
         {
             animateAndDestroy();
@@ -73,6 +80,20 @@ public class Entity : MonoBehaviour
             checkTimer = 0f;
         }
 
+        if (this is Enemy && !currentlyMatched)
+        {
+            float distance_brook = Math.Abs(transform.position.x - brook.transform.position.x);
+            if (distance_brook <= attackRange * 1.75f)
+            {
+                bossTargetted = true;
+                isAttacking = true;
+            }  else
+            {
+                bossTargetted = false;
+                isAttacking = false;
+            } 
+        }
+        
         if (!frozen && !isAttacking)
         {
             moveEntity();
@@ -104,7 +125,7 @@ public class Entity : MonoBehaviour
                 if (distance <= attackRange * 1.75f)
                 {
                     matched(this, target);
-                }
+                } 
             } 
             else
             {
@@ -146,13 +167,24 @@ public class Entity : MonoBehaviour
         {
             if (this is Enemy)
             {
-                direction = Vector3.left;
+                direction = getBrockDirection(this);
             } else if (this is Team)
             {
                 direction = Vector3.right;
             }
         }
         transform.position += direction * moveSpeed * Time.deltaTime;
+    }
+
+    protected virtual Vector3 getBrockDirection(Entity e)
+    {
+        if (e.transform.position.x <= brook.transform.position.x)
+        {
+            return Vector3.right;
+        } else
+        {
+            return Vector3.left;
+        }
     }
 
     protected virtual void matched(Entity teammate, Entity opponent)
@@ -186,24 +218,48 @@ public class Entity : MonoBehaviour
 
     protected virtual void attack()
     {
-        if (this.attackType.Equals("Melee"))
+        if (bossTargetted)
         {
-            if (target != null)
+            if (this.attackType.Equals("Melee"))
             {
-                target.getDamage(attackDamage);
-            }
-            if (target == null)
+                if (brook != null)
+                {
+                    brook.getDamage(attackDamage);
+                }
+                if (brook == null)
+                {
+                    canMove = true;
+                }
+            } else if (this.attackType.Equals("Ranged"))
             {
-                canMove = true;
+                Projectile projShot = Instantiate(proj, transform.position, Quaternion.identity);
+                projShot.Init(attackDamage, moveSpeed * 1.2f, brook, direction);
+            } else
+            {
+                Debug.Log("Wrong Attack Type");
             }
-        } else if (this.attackType.Equals("Ranged"))
-        {
-            Projectile projShot = Instantiate(proj, transform.position, Quaternion.identity);
-            projShot.Init(attackDamage, moveSpeed * 1.2f, target, direction);
         } else
         {
-            Debug.Log("Wrong Attack Type");
+            if (this.attackType.Equals("Melee"))
+            {
+                if (target != null)
+                {
+                    target.getDamage(attackDamage);
+                }
+                if (target == null)
+                {
+                    canMove = true;
+                }
+            } else if (this.attackType.Equals("Ranged"))
+            {
+                Projectile projShot = Instantiate(proj, transform.position, Quaternion.identity);
+                projShot.Init(attackDamage, moveSpeed * 1.2f, target, direction);
+            } else
+            {
+                Debug.Log("Wrong Attack Type");
+            }
         }
+        
     }
 
     public virtual void getDamage(float dmg)
